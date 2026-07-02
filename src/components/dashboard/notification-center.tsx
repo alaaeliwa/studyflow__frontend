@@ -33,8 +33,8 @@ export function NotificationCenter() {
       return () => window.cancelIdleCallback(idleId);
     }
 
-    const timeoutId = window.setTimeout(loadWhenIdle, 2500);
-    return () => window.clearTimeout(timeoutId);
+    const timeoutId = setTimeout(loadWhenIdle, 2500);
+    return () => clearTimeout(timeoutId);
   }, [loadNotifications]);
 
   React.useEffect(() => {
@@ -44,17 +44,21 @@ export function NotificationCenter() {
       }
     };
 
-    const interval = window.setInterval(() => {
+    const interval = setInterval(() => {
       void loadNotifications(true);
     }, 60000);
 
     document.addEventListener("visibilitychange", refreshNotifications);
-    window.addEventListener("focus", refreshNotifications);
+    if (typeof window !== "undefined") {
+      window.addEventListener("focus", refreshNotifications);
+    }
 
     return () => {
-      window.clearInterval(interval);
+      clearInterval(interval);
       document.removeEventListener("visibilitychange", refreshNotifications);
-      window.removeEventListener("focus", refreshNotifications);
+      if (typeof window !== "undefined") {
+        window.removeEventListener("focus", refreshNotifications);
+      }
     };
   }, [loadNotifications]);
 
