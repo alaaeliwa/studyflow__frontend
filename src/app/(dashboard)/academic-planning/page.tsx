@@ -48,7 +48,10 @@ export default function AcademicPlanningPage() {
     loadSemesters,
   } = useAppState();
 
-  useEffect(() => { loadCourses(); loadSemesters(); }, [loadCourses, loadSemesters]);
+  useEffect(() => {
+    loadCourses();
+    loadSemesters();
+  }, [loadCourses, loadSemesters]);
 
   const [isSemesterDialogOpen, setIsSemesterDialogOpen] = useState(false); // Changed state variable name
   const [editingSemester, setEditingSemester] =
@@ -384,7 +387,7 @@ export default function AcademicPlanningPage() {
             "space-y-6 animate-in slide-in-from-right-4 duration-700",
             showPriorSection
               ? "xl:col-span-8"
-              : "xl:col-span-12 lg:max-w-5xl lg:mx-auto w-full",
+              : "xl:col-span-12 w-full",
           )}
         >
           <div className="flex items-center justify-between">
@@ -398,27 +401,28 @@ export default function AcademicPlanningPage() {
           ) : (
             <div
               className={cn(
-                "grid gap-6",
+                "gap-6",
                 showPriorSection
-                  ? "grid-cols-1 lg:grid-cols-2"
-                  : "grid-cols-1 md:grid-cols-2",
+                  ? "columns-1 lg:columns-2"
+                  : "columns-1 md:columns-2",
               )}
             >
               {semesters
                 .filter((s) => s.id !== "prior-completed")
                 .map((semester) => (
-                  <SemesterCard
-                    key={semester.id}
-                    semester={semester}
-                    courses={courses.filter(
-                      (c) => c.semesterId === semester.id,
-                    )} // Filter courses by semesterId
-                    onAddCourse={handleOpenAddCourse} // Changed handler name
-                    onEditCourse={handleOpenEditCourse} // Changed handler name
-                    onDeleteCourse={handleDeleteCourse}
-                    onEditSemester={handleOpenEditSemester} // Changed handler name
-                    onDeleteSemester={handleDeleteSemester}
-                  />
+                  <div key={semester.id} className="break-inside-avoid mb-6">
+                    <SemesterCard
+                      semester={semester}
+                      courses={courses.filter(
+                        (c) => c.semesterId === semester.id,
+                      )} // Filter courses by semesterId
+                      onAddCourse={handleOpenAddCourse} // Changed handler name
+                      onEditCourse={handleOpenEditCourse} // Changed handler name
+                      onDeleteCourse={handleDeleteCourse}
+                      onEditSemester={handleOpenEditSemester} // Changed handler name
+                      onDeleteSemester={handleDeleteSemester}
+                    />
+                  </div>
                 ))}
             </div>
           )}

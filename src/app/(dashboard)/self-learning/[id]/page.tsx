@@ -393,7 +393,7 @@ export default function PlanDetailsPage() {
             sub: "completed",
           },
           {
-            label: "Milestones",
+            label: "Projects",
             value: `${completedMilestones}/${plan.milestones.length}`,
             sub: "achieved",
           },
@@ -613,7 +613,7 @@ export default function PlanDetailsPage() {
           <div className="flex items-center justify-between mt-6">
             <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
               <Flag className="h-5 w-5 text-amber-500" />
-              Milestones
+              Projects
             </h2>
             <Button
               size="sm"
@@ -623,14 +623,14 @@ export default function PlanDetailsPage() {
               }}
               className="gap-1.5 rounded-xl"
             >
-              <Plus className="h-4 w-4" /> Add Milestone
+              <Plus className="h-4 w-4" /> Add Project
             </Button>
           </div>
 
           {plan.milestones.length === 0 ? (
             <div className="py-10 text-center border-2 border-dashed border-border/50 rounded-2xl text-muted-foreground bg-muted/10">
               <p className="text-sm">
-                No milestones yet. Add checkpoints to celebrate progress.
+                No projects yet. Add checkpoints to celebrate progress.
               </p>
               <Button
                 size="sm"
@@ -639,7 +639,7 @@ export default function PlanDetailsPage() {
                 className="mt-2 gap-1"
               >
                 <Plus className="h-3.5 w-3.5" />
-                Add Milestone
+                Add Project
               </Button>
             </div>
           ) : (
@@ -851,8 +851,8 @@ export default function PlanDetailsPage() {
 
       <ConfirmActionDialog
         isOpen={!!milestoneToDelete}
-        title="Delete Milestone"
-        description="Are you sure you want to delete this milestone? This cannot be undone."
+        title="Delete Project"
+        description="Are you sure you want to delete this project? This cannot be undone."
         confirmText="Delete"
         onConfirm={confirmDeleteMilestone}
         onCancel={() => setMilestoneToDelete(null)}

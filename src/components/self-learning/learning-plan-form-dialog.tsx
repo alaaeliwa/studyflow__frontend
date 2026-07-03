@@ -83,7 +83,7 @@ export function LearningPlanFormDialog({ open, onOpenChange, onSave, initialData
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-2rem)] max-w-[580px] max-h-[90vh] flex flex-col p-0 overflow-hidden rounded-2xl">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-[700px] max-h-[90vh] flex flex-col p-0 overflow-hidden rounded-2xl">
         <DialogHeader className="px-6 py-4 border-b bg-muted/20 shrink-0">
           <DialogTitle className="text-xl">{initialData ? "Edit Learning Plan" : "New Learning Plan"}</DialogTitle>
           <DialogDescription>Define your personal learning goal and track your progress.</DialogDescription>

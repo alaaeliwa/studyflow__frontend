@@ -10,7 +10,7 @@ export function SelfLearningStats({ stats }: StatsProps) {
     { key: "total", title: "Total Plans", subtitle: "All learning plans created", icon: BookOpen, color: "text-violet-600", bg: "bg-violet-500/10" },
     { key: "active", title: "Active", subtitle: "Currently in progress", icon: Zap, color: "text-blue-600", bg: "bg-blue-500/10" },
     { key: "completed", title: "Completed", subtitle: "Fully finished plans", icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-500/10" },
-    { key: "upcomingMilestones", title: "Upcoming Milestones", subtitle: "Pending goals to achieve", icon: CalendarCheck, color: "text-orange-600", bg: "bg-orange-500/10" },
+    { key: "upcomingMilestones", title: "Upcoming Projects", subtitle: "Pending goals to achieve", icon: CalendarCheck, color: "text-orange-600", bg: "bg-orange-500/10" },
   ] as const;
 
   return (

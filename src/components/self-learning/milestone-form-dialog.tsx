@@ -69,7 +69,7 @@ export function MilestoneFormDialog({ open, onOpenChange, onSave, initialData, p
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px] rounded-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Milestone" : "Add Milestone"}</DialogTitle>
+          <DialogTitle>{initialData ? "Edit Project" : "Add Project"}</DialogTitle>
           <DialogDescription>Set a meaningful checkpoint in your learning journey.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
@@ -79,7 +79,7 @@ export function MilestoneFormDialog({ open, onOpenChange, onSave, initialData, p
           </div>
           <div className="space-y-2">
             <Label className="text-muted-foreground">Description</Label>
-            <Textarea placeholder="What does reaching this milestone mean?" value={description} onChange={e => setDescription(e.target.value)} className="resize-none min-h-[60px]" />
+            <Textarea placeholder="What does reaching this project mean?" value={description} onChange={e => setDescription(e.target.value)} className="resize-none min-h-[60px]" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
@@ -102,7 +102,7 @@ export function MilestoneFormDialog({ open, onOpenChange, onSave, initialData, p
         </div>
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl">Cancel</Button>
-          <Button onClick={handleSave} disabled={!title.trim()} className="rounded-xl">{initialData ? "Save" : "Add Milestone"}</Button>
+          <Button onClick={handleSave} disabled={!title.trim()} className="rounded-xl">{initialData ? "Save" : "Add Project"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

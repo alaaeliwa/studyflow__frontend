@@ -26,8 +26,16 @@ export default function CoursesClient() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Reset page when tab or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery]);
+
   const filteredCourses = useMemo(() => {
-    return courses.filter((course) => {
+    const filtered = courses.filter((course) => {
       const matchesSearch =
         course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
@@ -38,7 +46,17 @@ export default function CoursesClient() {
       const isNotPrior = course.semesterId !== "prior-completed";
       return matchesSearch && matchesTab && isNotPrior;
     });
+
+    // Sort newest first by assuming newer courses have higher index in array or newer created_at
+    // A simple reverse works if courses are appended, but sorting by createdAt is safer if it exists, otherwise reverse
+    return filtered.slice().reverse();
   }, [courses, searchQuery, activeTab]);
+
+  const totalPages = Math.ceil(filteredCourses.length / itemsPerPage);
+  const paginatedCourses = filteredCourses.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const counts = useMemo(() => {
     const mainCourses = courses.filter(c => c.semesterId !== "prior-completed");
@@ -122,16 +140,42 @@ export default function CoursesClient() {
         />
       </div>
       {filteredCourses.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredCourses.map((course) => (
-            <CourseCard
-              key={course.id}
-              course={course}
-              semesterName={state.academicPlanning.semesters.find(s => s.id === course.semesterId)?.name}
-              onEdit={handleEditCourse}
-              onDelete={handleDeleteCourse}
-            />
-          ))}
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {paginatedCourses.map((course) => (
+              <CourseCard
+                key={course.id}
+                course={course}
+                semesterName={state.academicPlanning.semesters.find(s => s.id === course.semesterId)?.name}
+                onEdit={handleEditCourse}
+                onDelete={handleDeleteCourse}
+              />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center space-x-4 py-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <div className="text-sm font-medium text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-12 text-center">
