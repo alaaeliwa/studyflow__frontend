@@ -67,6 +67,11 @@ function mapUserFromBackend(user: BackendUser): UserProfile {
     try { reminderPrefs = JSON.parse(reminderPrefs); } catch { reminderPrefs = null; }
   }
 
+  let streak = user.streak || user.streak_data || user.streakData;
+  if (typeof streak === "string") {
+    try { streak = JSON.parse(streak); } catch { streak = null; }
+  }
+
   return {
     ...user,
     academicYear: user.academicYear || user.academic_year || "",
@@ -80,6 +85,7 @@ function mapUserFromBackend(user: BackendUser): UserProfile {
     reminderPreferences: { ...DEFAULT_REMINDER_PREFERENCES, ...(reminderPrefs || {}) },
     focusPreferences: { ...DEFAULT_FOCUS_PREFERENCES, ...(user.focusPreferences || user.focus_preferences || {}) },
     themePreference: user.themePreference || user.theme_preference || "system",
+    streak: streak || undefined,
   } as UserProfile;
 }
 
@@ -96,7 +102,10 @@ export const AuthService = {
       const mappedUser = mapUserFromBackend(response.user);
       localStorage.setItem("studyflow_auth_token", response.token);
       localStorage.setItem("studyflow_user", JSON.stringify(mappedUser));
-      AppStore.update({ userProfile: mappedUser });
+      AppStore.update({
+        userProfile: mappedUser,
+        streak: mappedUser.streak || { currentCount: 0, longestCount: 0, lastActiveDate: "", activeDays: [] }
+      });
       return { ...response, user: mappedUser };
     }
     return response as unknown as { token: string; user: UserProfile };
@@ -111,7 +120,10 @@ export const AuthService = {
       const mappedUser = mapUserFromBackend(response.user);
       localStorage.setItem("studyflow_auth_token", response.token);
       localStorage.setItem("studyflow_user", JSON.stringify(mappedUser));
-      AppStore.update({ userProfile: mappedUser });
+      AppStore.update({
+        userProfile: mappedUser,
+        streak: mappedUser.streak || { currentCount: 0, longestCount: 0, lastActiveDate: "", activeDays: [] }
+      });
       return { ...response, user: mappedUser };
     }
     return response as unknown as { message: string; token: string; user: UserProfile };
@@ -177,6 +189,7 @@ export const AuthService = {
       total_credit_hours: updates.totalCreditHours ? parseInt(updates.totalCreditHours) : undefined,
       completed_credit_hours: updates.completedCreditHours ? parseInt(updates.completedCreditHours) : undefined,
       current_gpa: updates.currentGPA ? parseFloat(updates.currentGPA) : undefined,
+      streak_data: updates.streak,
     };
     const response = await apiClient.post<{message: string, user: BackendUser}>("/user/update-profile", payload);
     const mappedUser = mapUserFromBackend(response.user);
