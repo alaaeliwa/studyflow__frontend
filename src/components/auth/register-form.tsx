@@ -78,8 +78,10 @@ const handleSubmit = async (e: React.FormEvent) => {
     });
     router.push("/setup");
   } catch (err: unknown) {
-    const error = err as { message?: string };
-    toast.error(error.message || "Unable to create account with the provided details.");
+    const message = err instanceof Error ? err.message : "Unable to create account. Please try again.";
+    toast.error("Registration Failed", {
+      description: message,
+    });
   } finally {
     setIsLoading(false);
   }

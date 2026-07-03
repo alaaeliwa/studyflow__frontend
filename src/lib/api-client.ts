@@ -73,9 +73,18 @@ async function request<T>(
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+
+      // Extract the first validation error message from Laravel's errors object
+      let message = errorData.message;
+      if (errorData.errors && typeof errorData.errors === "object") {
+        const firstField = Object.values(errorData.errors)[0];
+        if (Array.isArray(firstField) && firstField.length > 0) {
+          message = firstField[0] as string;
+        }
+      }
+
       throw new Error(
-        errorData.message ||
-          `API request failed with status ${response.status}`,
+        message || `API request failed with status ${response.status}`,
       );
     }
 

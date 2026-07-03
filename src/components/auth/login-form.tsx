@@ -28,9 +28,10 @@ export function LoginForm() {
     try {
       await AuthService.login(formData)
       router.push("/dashboard")
-    } catch {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Invalid email or password. Please try again.";
       toast.error("Login Failed", {
-        description: "Incorrect email or password. Please try again."
+        description: message,
       })
     } finally {
       setIsLoading(false)
