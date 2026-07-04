@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { PlannerSemester } from "@/types/academic-planning";
 import { Course } from "@/types/course";
 import { SemesterCard } from "@/components/academic-planning/semester-card";
@@ -31,6 +31,7 @@ import {
   calculateInProgressCredits,
   estimateRemainingSemesters,
 } from "@/lib/academic-planning/utils";
+import { AuthService } from "@/services/auth.service";
 
 export default function AcademicPlanningPage() {
   // Changed component name
@@ -96,6 +97,34 @@ export default function AcademicPlanningPage() {
   );
   const totalPriorCredits = priorCourses.reduce((sum, c) => sum + c.credits, 0);
   const showPriorSection = baselineCredits > 0;
+
+  // Notify backend when calculated GPA increases (for encouragement notifications only)
+  // IMPORTANT: We do NOT update userProfile.completedCreditHours or currentGPA here
+  // because those are BASELINE values from setup. The academic planning page 
+  // calculates totals ON TOP of those baselines.
+  const lastNotifiedGpaRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (cumulativeAverage === null) return;
+
+    // Initialize ref on first render
+    if (lastNotifiedGpaRef.current === null) {
+      lastNotifiedGpaRef.current = cumulativeAverage;
+      return;
+    }
+
+    // Only notify if GPA actually increased since last check
+    if (cumulativeAverage > lastNotifiedGpaRef.current) {
+      lastNotifiedGpaRef.current = cumulativeAverage;
+
+      // Send only the calculated GPA to backend for notification purposes
+      AuthService.updateProfile({
+        currentGPA: cumulativeAverage.toFixed(2),
+      }).catch(() => {
+        // Silently ignore
+      });
+    }
+  }, [cumulativeAverage]);
 
   // Group courses by semester for easier mapping and calculations
   // This part needs to be re-evaluated if courses are global.

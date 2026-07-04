@@ -140,6 +140,7 @@ export interface Course {
   startDate?: string; // Optional: ISO date string
   endDate?: string; // Optional: ISO date string
   progress?: number; // 0-100, only for current courses
+  isPassFail?: boolean; // New: Pass/Fail course flag
   finalGrade?: string; // e.g., "92 (A)", only for completed courses
   numericGrade?: number; // 0-100, used in Academic Planning calculations
   academicPeriod?: string; // e.g. "2023 Fall", only for prior-completed courses

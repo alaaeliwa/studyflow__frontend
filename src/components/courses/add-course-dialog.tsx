@@ -18,6 +18,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 interface AddCourseDialogProps {
@@ -39,6 +40,7 @@ const defaultFormData: Omit<Course, "id"> = {
   durationWeeks: 16,
   code: "",
   description: "",
+  isPassFail: false,
 };
 
 const MAX_COURSE_CREDITS = 6;
@@ -96,6 +98,7 @@ export function AddCourseDialog({
         finalGrade: initialData.finalGrade,
         numericGrade: initialData.numericGrade,
         academicPeriod: initialData.academicPeriod || "",
+        isPassFail: initialData.isPassFail || false,
       };
     }
 
@@ -230,7 +233,12 @@ export function AddCourseDialog({
     if (finalData.status === "current" && finalData.progress === undefined) {
       finalData.progress = 0;
     }
-    if (finalData.status === "completed" && finalData.numericGrade !== undefined && !finalData.finalGrade) {
+
+    if (finalData.isPassFail && finalData.status === "completed") {
+        // Automatically set finalGrade if numericGrade is set as pseudo pass/fail
+        if (finalData.numericGrade === 100) finalData.finalGrade = "Pass";
+        else if (finalData.numericGrade === 0) finalData.finalGrade = "Fail";
+    } else if (finalData.status === "completed" && finalData.numericGrade !== undefined && !finalData.finalGrade) {
         finalData.finalGrade = `${finalData.numericGrade}%`;
     }
 
@@ -498,25 +506,72 @@ export function AddCourseDialog({
                     )}
 
                     {(formData.status === "completed" || isPriorMode) && (
-                        <div className="space-y-2 animate-in fade-in slide-in-from-left-2 text-emerald-600 dark:text-emerald-400">
-                            <Label htmlFor="grade" className="font-semibold text-sm">Numeric Grade (0-100) *</Label>
-                            <Input
-                                id="grade"
-                                type="text"
-                                value={formData.numericGrade ?? ""}
-                                onChange={(e) => {
-                                    const val = normalizeNumerals(e.target.value);
-                                    setFormData({ ...formData, numericGrade: parseInt(val) || 0 });
-                                }}
-                                placeholder="e.g. 95"
-                                inputMode="numeric"
-                                className={cn(
-                                    "border-emerald-500/30 focus-visible:ring-emerald-500/30 rounded-xl h-10",
-                                    errors.numericGrade && "border-red-500"
-                                )}
-                            />
-                            {errors.numericGrade && (
-                                <p className="text-[11px] text-red-500 font-medium">{errors.numericGrade}</p>
+                        <div className="space-y-4 animate-in fade-in slide-in-from-left-2 text-emerald-600 dark:text-emerald-400 border rounded-xl p-4 bg-emerald-50/30">
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="isPassFail" className="font-semibold text-sm cursor-pointer flex flex-col gap-1">
+                                    <span>Pass/Fail Course</span>
+                                    <span className="text-[10px] text-muted-foreground font-normal">This course does not affect the GPA</span>
+                                </Label>
+                                <Switch
+                                    id="isPassFail"
+                                    checked={formData.isPassFail}
+                                    onCheckedChange={(checked) => {
+                                        setFormData({ 
+                                            ...formData, 
+                                            isPassFail: checked,
+                                            numericGrade: checked ? 100 : undefined 
+                                        });
+                                    }}
+                                />
+                            </div>
+
+                            {formData.isPassFail ? (
+                                <div className="space-y-2 pt-2 border-t border-emerald-100">
+                                    <Label className="font-semibold text-sm">Course Result *</Label>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            type="button"
+                                            variant={formData.numericGrade === 100 ? "default" : "outline"}
+                                            className={cn("flex-1", formData.numericGrade === 100 && "bg-emerald-600 hover:bg-emerald-700")}
+                                            onClick={() => setFormData({ ...formData, numericGrade: 100 })}
+                                        >
+                                            Pass
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant={formData.numericGrade === 0 ? "destructive" : "outline"}
+                                            className="flex-1"
+                                            onClick={() => setFormData({ ...formData, numericGrade: 0 })}
+                                        >
+                                            Fail
+                                        </Button>
+                                    </div>
+                                    {errors.numericGrade && (
+                                        <p className="text-[11px] text-red-500 font-medium">{errors.numericGrade}</p>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="space-y-2 pt-2 border-t border-emerald-100">
+                                    <Label htmlFor="grade" className="font-semibold text-sm">Numeric Grade (0-100) *</Label>
+                                    <Input
+                                        id="grade"
+                                        type="text"
+                                        value={formData.numericGrade ?? ""}
+                                        onChange={(e) => {
+                                            const val = normalizeNumerals(e.target.value);
+                                            setFormData({ ...formData, numericGrade: parseInt(val) || 0 });
+                                        }}
+                                        placeholder="e.g. 95"
+                                        inputMode="numeric"
+                                        className={cn(
+                                            "border-emerald-500/30 focus-visible:ring-emerald-500/30 rounded-xl h-10",
+                                            errors.numericGrade && "border-red-500"
+                                        )}
+                                    />
+                                    {errors.numericGrade && (
+                                        <p className="text-[11px] text-red-500 font-medium">{errors.numericGrade}</p>
+                                    )}
+                                </div>
                             )}
                         </div>
                     )}

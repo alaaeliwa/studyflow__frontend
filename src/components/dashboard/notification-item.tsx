@@ -11,6 +11,8 @@ import {
   Clock, 
   Info,
   TriangleAlert,
+  Flame,
+  GraduationCap,
   LucideIcon 
 } from "lucide-react";
 import { formatRelativeTime } from "@/lib/utils/date-utils";
@@ -28,6 +30,8 @@ const typeIcons: Record<string, LucideIcon> = {
   reflection: Info,
   system: Info,
   reminder: Bell,
+  encouragement: Flame,
+  graduation: GraduationCap,
 };
 
 const severityColors: Record<string, string> = {
@@ -60,44 +64,55 @@ export function NotificationItem({ notification, onClick }: NotificationItemProp
     notification.severity === "critical"
       ? TriangleAlert
       : typeIcons[notification.type] || Info;
-  const colorClass =
-    severityColors[notification.severity] || "text-slate-500 bg-slate-50";
+
+  const isEncouragement = notification.type === "encouragement";
+  const isGraduation = notification.type === "graduation";
+  
+  const colorClass = isEncouragement
+    ? "text-orange-600 bg-orange-100 dark:bg-orange-900/50"
+    : isGraduation
+      ? "text-purple-600 bg-purple-100 dark:bg-purple-900/50"
+      : severityColors[notification.severity] || "text-slate-500 bg-slate-50";
 
   return (
     <div 
       onClick={() => onClick(notification.id)}
       className={cn(
-        "group relative cursor-pointer rounded-2xl border p-4 transition-all duration-200",
-        "hover:-translate-y-0.5 hover:shadow-md",
-        !notification.read
-          ? "border-primary/15 bg-gradient-to-r from-primary/6 via-background to-background shadow-sm"
-          : "border-border/60 bg-card hover:bg-muted/30",
-        notification.severity === "critical" &&
-          "border-red-200/70 bg-gradient-to-r from-red-50/80 via-background to-background dark:border-red-900/50 dark:from-red-950/20",
+        "group relative flex gap-4 p-4 hover:bg-muted/50 transition-all cursor-pointer rounded-xl border border-transparent hover:border-border",
+        !notification.read && !isEncouragement && !isGraduation && "bg-primary/5 dark:bg-primary/10",
+        isEncouragement && "bg-orange-50/50 hover:bg-orange-50 dark:bg-orange-950/20 dark:hover:bg-orange-950/30 border-orange-100 dark:border-orange-900/30",
+        isGraduation && "bg-purple-50/80 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/30 border-purple-200 dark:border-purple-800/50 shadow-sm"
       )}
     >
-      <div className="flex gap-4">
-        <div
-          className={cn(
-            "mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ring-1 ring-black/5",
-            colorClass,
-          )}
-        >
-          <Icon className="h-5 w-5" />
+      {!notification.read && !isEncouragement && !isGraduation && (
+        <div className="absolute right-3 top-3 flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_0_4px_rgba(59,130,246,0.12)]" />
         </div>
+      )}
 
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 space-y-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <p
-                  className={cn(
-                    "truncate text-sm font-semibold leading-none",
-                    !notification.read ? "text-foreground" : "text-foreground/80",
-                  )}
-                >
-                  {notification.title}
-                </p>
+      <div
+        className={cn(
+          "mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ring-1 ring-black/5",
+          colorClass,
+        )}
+      >
+        <Icon className="h-5 w-5" />
+      </div>
+
+      <div className="min-w-0 flex-1 space-y-2">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 space-y-1">
+            <div className="flex flex-wrap items-center gap-2 mt-1">
+              <h4 className={cn(
+                "text-sm font-semibold transition-colors group-hover:text-primary",
+                !notification.read ? "text-foreground" : "text-foreground/80",
+                isEncouragement && "text-orange-700 dark:text-orange-400 group-hover:text-orange-800 dark:group-hover:text-orange-300",
+                isGraduation && "text-purple-700 dark:text-purple-400 group-hover:text-purple-800 text-base"
+              )}>
+                {notification.title}
+              </h4>
+              
+              {notification.severity && !isEncouragement && !isGraduation && (
                 <Badge
                   variant="outline"
                   className={cn(
@@ -107,11 +122,17 @@ export function NotificationItem({ notification, onClick }: NotificationItemProp
                 >
                   {severityLabels[notification.severity]}
                 </Badge>
-              </div>
-              <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                {notification.message}
-              </p>
+              )}
             </div>
+
+            <p className={cn(
+              "text-sm mt-1.5 leading-relaxed",
+              !notification.read ? "text-muted-foreground font-medium" : "text-muted-foreground/80",
+              isEncouragement && "text-orange-600/90 dark:text-orange-300/80",
+              isGraduation && "text-purple-600 dark:text-purple-300/90 font-medium"
+            )}>
+              {notification.message}
+            </p>
 
             <span className="whitespace-nowrap pt-0.5 text-[10px] text-muted-foreground">
               {formatRelativeTime(notification.createdAt)}

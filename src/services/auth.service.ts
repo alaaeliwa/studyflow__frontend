@@ -182,15 +182,32 @@ export const AuthService = {
    * Update current user profile (partial update)
    */
   async updateProfile(updates: Partial<UserProfile>) {
-    const payload = {
-      ...updates,
-      avatar_url: updates.avatarUrl,
+    // Build a clean payload (no camelCase duplicates)
+    const currentGpaValue = updates.currentGPA !== undefined
+      ? (updates.currentGPA !== "" ? parseFloat(updates.currentGPA) : null)
+      : undefined;
+
+    const payload: Record<string, unknown> = {
+      name: updates.name,
+      university: updates.university,
+      major: updates.major,
       academic_year: updates.academicYear,
       total_credit_hours: updates.totalCreditHours ? parseInt(updates.totalCreditHours) : undefined,
       completed_credit_hours: updates.completedCreditHours ? parseInt(updates.completedCreditHours) : undefined,
-      current_gpa: updates.currentGPA ? parseFloat(updates.currentGPA) : undefined,
+      current_gpa: currentGpaValue,
+      avatar_url: updates.avatarUrl,
       streak_data: updates.streak,
+      theme_preference: updates.themePreference,
+      focus_preferences: updates.focusPreferences,
+      reminder_preferences: updates.reminderPreferences,
+      onboarding_completed: updates.onboardingCompleted,
+      current_semester: updates.currentSemester,
     };
+
+    // Remove undefined keys so they don't override existing values
+    Object.keys(payload).forEach((key) => {
+      if (payload[key] === undefined) delete payload[key];
+    });
     const response = await apiClient.post<{message: string, user: BackendUser}>("/user/update-profile", payload);
     const mappedUser = mapUserFromBackend(response.user);
     localStorage.setItem("studyflow_user", JSON.stringify(mappedUser));

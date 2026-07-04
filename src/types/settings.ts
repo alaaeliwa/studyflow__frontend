@@ -25,6 +25,7 @@ export interface UserProfile {
   totalCreditHours: string;
   completedCreditHours: string;
   avatarUrl?: string;
+  currentSemester?: string;
   onboardingCompleted: boolean;
   
   focusPreferences: FocusPreferences;

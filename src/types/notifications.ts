@@ -5,7 +5,9 @@ export type NotificationType =
   | "assignment" 
   | "reflection" 
   | "system" 
-  | "reminder";
+  | "reminder"
+  | "encouragement"
+  | "graduation";
 
 export type NotificationSeverity = "info" | "warning" | "critical" | "success";
 

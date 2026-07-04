@@ -28,6 +28,9 @@ export function calculateCumulativeAverage(
     // Skip prior-completed courses as they are already in the baseline
     if (course.semesterId === "prior-completed") continue;
 
+    // Skip Pass/Fail courses as they don't count towards GPA
+    if (course.isPassFail) continue;
+
     if (course.status === "completed" && course.numericGrade !== null && course.numericGrade !== undefined) {
       totalWeightedGrades += (course.numericGrade || 0) * course.credits;
       totalCreditsForAverage += course.credits;
